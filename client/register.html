@@ -42,8 +42,28 @@
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
                                                     <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" />
+                                                        <!-- <div class="input-group mb-3">
+                                                            <input type="password" class="form-control" id="user-pass">
+                                                            <button class="btn btn-secondary" type="button" id="gen-pass">Generate</button>
+                                                        </div>
+                                                        <span class="error-msg"></span> -->
+                                                        
+                                                                                                               
+                                                        <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" aria-describedby="passwordHelpBlock"/>
                                                         <label for="inputPassword">Password</label>
+                                                        
+                                                        <div id="passwordHelpBlock" class="form-text">
+                                                            Your password must contain:
+                                                            <ul>
+                                                                <li>Length between 8 and 16 digits</li>
+                                                                <li>Capital letters</li>
+                                                                <li>Small letters</li>
+                                                                <li>Numbers ( 0-9 )</li>
+                                                                <li>Special character ( !, @, _, $, %, ... )</li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <button class="btn btn-secondary" type="button" id="gen-pass">Generate</button>                                                                                                                                                                        
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -59,7 +79,7 @@
                                         </form>
                                     </div>
                                     <div class="card-footer text-center py-3">
-                                        <div class="small"><a href="/login">Have an account? Go to login</a></div>
+                                        <div class="small"><a href="/login" id="register-user">Have an account? Go to login</a></div>
                                     </div>
                                 </div>
                             </div>
