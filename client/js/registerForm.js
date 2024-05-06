@@ -1,7 +1,15 @@
 let passwordField = document.getElementById("inputPassword");
+let confirmPasswordField = document.getElementById("inputPasswordConfirm");
+
+let firstNameField = document.getElementById("inputFirstName");
+let lastNameField = document.getElementById("inputLastName");
+
+let emailField = document.getElementById("inputEmail");
+
 let registerButton = document.getElementById("RegButton");
 let errorMsgs = document.getElementsByClassName("error-msg");
 
+//------------------------------ FUNCTIONS ------------------------------
 function checkPassword(passwordValue)
 {
     /*
@@ -22,7 +30,9 @@ function checkPassword(passwordValue)
    let isThereSpecialChar = /[^\w\s]/;
 
    if(!(passwordValue.length >= 8 && passwordValue.length <= 16))
+    {
         flag++;
+    }
    else
    {
         if(!isThereSmall.test(passwordValue))
@@ -44,12 +54,34 @@ function formValidation()
     //-------------------------------- PASSWORD FIELD --------------------------------
     if(!checkPassword(passwordField.value))
     {
+        document.getElementById("passwordHelpBlock").style.display = "none";
         errorMsgs[0].textContent = "Password must contain capital letters, small letters, numbers, and special character and length between 8 and 16 digits.";
         isValid++;
     }
     else
         errorMsgs[0].textContent = "";
 
+    //-------------------------------- CONFIRM PASSWORD FIELD --------------------------------
+    if(confirmPasswordField.value !== passwordField.value)
+    {
+        errorMsgs[1].textContent = "Passwords doesn't match!";
+        isValid++;
+    }
+    else
+        errorMsgs[1].textContent = "";
+    //-------------------------------- NAME & EMAIL FIELD --------------------------------
+    if (firstNameField.value == '') {
+        isValid++;
+    }
+    
+    if (lastNameField.value == '') {
+        isValid++;
+    }
+
+    if (emailField.value == '') {
+        isValid++;
+    }
+    //-------------------------------- RESULT --------------------------------
     if(isValid == 0)// Register the user?
         alert("Successful");
     else
@@ -58,6 +90,8 @@ function formValidation()
 //--------------------------- EVENT LISTENERS ---------------------------
 passwordField.addEventListener("input", function (){
     errorMsgs[0].textContent = "";
+    errorMsgs[1].textContent = "";
+    document.getElementById("passwordHelpBlock").style.display = "block";
 });
 
 registerButton.addEventListener("click", formValidation);
