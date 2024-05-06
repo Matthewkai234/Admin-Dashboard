@@ -8,6 +8,7 @@
         <meta name="author" content="" />
         <title>Register - SB Admin</title>
         <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/registerForm-custom.css" rel="stylesheet"/>
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     </head>
     <body class="bg-primary">
@@ -52,6 +53,8 @@
                                                         <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" aria-describedby="passwordHelpBlock"/>
                                                         <label for="inputPassword">Password</label>
                                                         
+                                                        <span class="error-msg">ERROR</span>
+
                                                         <div id="passwordHelpBlock" class="form-text">
                                                             Your password must contain:
                                                             <ul>
@@ -63,7 +66,6 @@
                                                             </ul>
                                                         </div>
 
-                                                        <button class="btn btn-secondary" type="button" id="gen-pass">Generate</button>                                                                                                                                                                        
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -74,7 +76,11 @@
                                                 </div>
                                             </div>
                                             <div class="mt-4 mb-0">
-                                                <div class="d-grid"><a class="btn btn-primary btn-block" href="/login">Create Account</a></div>
+                                                <!-- <div class="d-grid"><a class="btn btn-primary btn-block" href="/login" id="RegButton">Create Account</a></div> -->
+                                                <div class="d-grid">
+                                                    <button class="btn btn-primary btn-block" id="RegButton">Create Account</button>
+                                                </div>
+                                                
                                             </div>
                                         </form>
                                     </div>
@@ -104,5 +110,6 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
+        <script src="js/registerForm.js"></script>
     </body>
 </html>

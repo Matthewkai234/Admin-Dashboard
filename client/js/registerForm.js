@@ -1,5 +1,6 @@
 let passwordField = document.getElementById("inputPassword");
-let registerButton = document.getElementById("register-user");
+let registerButton = document.getElementById("RegButton");
+let errorMsgs = document.getElementsByClassName("error-msg");
 
 function checkPassword(passwordValue)
 {
@@ -18,7 +19,7 @@ function checkPassword(passwordValue)
    let isThereSmall = /[a-z]/;
    let isThereCapital = /[A-Z]/;
    let isThereNumber = /[0-9]/;
-   let isThereUnderscore = /[_]/;
+   let isThereSpecialChar = /[^\w\s]/;
 
    if(!(passwordValue.length >= 8 && passwordValue.length <= 16))
         flag++;
@@ -30,9 +31,33 @@ function checkPassword(passwordValue)
             flag++;
         if(!isThereNumber.test(passwordValue))
             flag++;
-        if(!isThereUnderscore.test(passwordValue))
+        if(!isThereSpecialChar.test(passwordValue))
             flag++;
     }
 
     return !(flag > 0);
 }
+
+function formValidation()
+{
+    let isValid = 0;
+    //-------------------------------- PASSWORD FIELD --------------------------------
+    if(!checkPassword(passwordField.value))
+    {
+        errorMsgs[0].textContent = "Password must contain capital letters, small letters, numbers, and special character and length between 8 and 16 digits.";
+        isValid++;
+    }
+    else
+        errorMsgs[0].textContent = "";
+
+    if(isValid == 0)// Register the user?
+        alert("Successful");
+    else
+        alert("Oops, form not valid!");
+}
+//--------------------------- EVENT LISTENERS ---------------------------
+passwordField.addEventListener("input", function (){
+    errorMsgs[0].textContent = "";
+});
+
+registerButton.addEventListener("click", formValidation);
