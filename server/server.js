@@ -1,8 +1,9 @@
 const path = require("path");
-
 const express = require("express");
+const runDatabaseConnector = require('./connector_mongodb');
 
 const app = express();
+
 
 /******************************************************** Routes ********************************************************/ 
 
@@ -52,4 +53,15 @@ app.get('/*', (req,res)=>{
     res.sendFile(path.join(__dirname,"..","client", "404.html")); 
 })
 /***********************************************************************************************************************/ 
-app.listen(42069);
+// Start the database connection when the server starts
+runDatabaseConnector().then(() => {
+    console.log("Database connected successfully!");
+}).catch((error) => {
+    console.error("Error connecting to database:", error);
+});
+
+const PORT = process.env.PORT || 42069;
+app.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
+});
+//app.listen(42069);

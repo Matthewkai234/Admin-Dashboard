@@ -50,7 +50,14 @@
                                                         <span class="error-msg"></span> -->
                                                         
                                                                                                                
-                                                        <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" aria-describedby="passwordHelpBlock" required />
+                                                        <input 
+                                                            class="form-control" 
+                                                            id="inputPassword" 
+                                                            type="password" 
+                                                            placeholder="Create a password" 
+                                                            aria-describedby="passwordHelpBlock" 
+                                                            required
+                                                            autocomplete="new-password" />
                                                         <label for="inputPassword">Password</label>
                                                         
                                                         <span class="error-msg">error</span>
@@ -70,7 +77,13 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" required />
+                                                        <input 
+                                                            class="form-control" 
+                                                            id="inputPasswordConfirm" 
+                                                            type="password" 
+                                                            placeholder="Confirm password" 
+                                                            required 
+                                                            autocomplete="new-password"/>
                                                         <label for="inputPasswordConfirm">Confirm Password</label>
                                                         <span class="error-msg">error</span>
                                                     </div>
@@ -111,6 +124,6 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
-        <script src="js/registerForm.js"></script>
+        <script type="module" src="js/registerForm.js"></script>
     </body>
 </html>

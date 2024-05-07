@@ -9,6 +9,7 @@ let emailField = document.getElementById("inputEmail");
 let registerButton = document.getElementById("RegButton");
 let errorMsgs = document.getElementsByClassName("error-msg");
 
+import insertData from '../../server/connector_mongodb';
 //------------------------------ FUNCTIONS ------------------------------
 function checkPassword(passwordValue)
 {
@@ -83,7 +84,26 @@ function formValidation()
     }
     //-------------------------------- RESULT --------------------------------
     if(isValid == 0)// Register the user?
-        alert("Successful");
+    {
+        alert("User registered!");
+
+        const data =
+        {
+            firstName: firstNameField.value,
+            lastName: lastNameField.value,
+            email: emailField.value,
+            password: passwordField.value,
+            createdAt: new Date()
+        };
+
+        insertData(data)
+        .then(() => {
+            console.log("Data inserted successfully!");
+        })
+        .catch((error) => {
+            console.error("Error inserting data:", error);
+        });
+    }
     else
         alert("Oops, form not valid!");
 }
