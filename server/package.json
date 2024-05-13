@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongodb": "^6.6.1",
     "nodemon": "^3.1.0"
   }
 }
