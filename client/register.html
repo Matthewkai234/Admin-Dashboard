@@ -8,6 +8,7 @@
         <meta name="author" content="" />
         <title>Register - SB Admin</title>
         <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/registerForm-custom.css" rel="stylesheet"/>
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     </head>
     <body class="bg-primary">
@@ -24,42 +25,81 @@
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
                                                     <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputFirstName" type="text" placeholder="Enter your first name" />
+                                                        <input class="form-control" id="inputFirstName" type="text" placeholder="Enter your first name" required  />
                                                         <label for="inputFirstName">First name</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="inputLastName" type="text" placeholder="Enter your last name" />
+                                                        <input class="form-control" id="inputLastName" type="text" placeholder="Enter your last name" required />
                                                         <label for="inputLastName">Last name</label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" />
+                                                <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" required />
                                                 <label for="inputEmail">Email address</label>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
                                                     <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" />
+                                                        <!-- <div class="input-group mb-3">
+                                                            <input type="password" class="form-control" id="user-pass">
+                                                            <button class="btn btn-secondary" type="button" id="gen-pass">Generate</button>
+                                                        </div>
+                                                        <span class="error-msg"></span> -->
+                                                        
+                                                                                                               
+                                                        <input 
+                                                            class="form-control" 
+                                                            id="inputPassword" 
+                                                            type="password" 
+                                                            placeholder="Create a password" 
+                                                            aria-describedby="passwordHelpBlock" 
+                                                            required
+                                                            autocomplete="new-password" />
                                                         <label for="inputPassword">Password</label>
+                                                        
+                                                        <span class="error-msg">error</span>
+
+                                                        <div id="passwordHelpBlock" class="form-text">
+                                                            Your password must contain:
+                                                            <ul>
+                                                                <li id="pasLen">Length between 8 and 16 digits</li>
+                                                                <li id="pasCap">Capital letters</li>
+                                                                <li id="pasSmall">Small letters</li>
+                                                                <li id="pasNum">Numbers ( 0-9 )</li>
+                                                                <li id="pasSc">Special character ( !, @, _, $, %, ... )</li>
+                                                            </ul>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" />
+                                                        <input 
+                                                            class="form-control" 
+                                                            id="inputPasswordConfirm" 
+                                                            type="password" 
+                                                            placeholder="Confirm password" 
+                                                            required 
+                                                            autocomplete="new-password"/>
                                                         <label for="inputPasswordConfirm">Confirm Password</label>
+                                                        <span class="error-msg">error</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="mt-4 mb-0">
-                                                <div class="d-grid"><a class="btn btn-primary btn-block" href="/login">Create Account</a></div>
+                                                <!-- <div class="d-grid"><a class="btn btn-primary btn-block" href="/login" id="RegButton">Create Account</a></div> -->
+                                                <div class="d-grid">
+                                                    <button class="btn btn-primary btn-block" id="RegButton">Create Account</button>
+                                                </div>
+                                                
                                             </div>
                                         </form>
                                     </div>
                                     <div class="card-footer text-center py-3">
-                                        <div class="small"><a href="/login">Have an account? Go to login</a></div>
+                                        <div class="small"><a href="/login" id="register-user">Have an account? Go to login</a></div>
                                     </div>
                                 </div>
                             </div>
@@ -84,5 +124,6 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
+        <script type="module" src="js/registerForm.js"></script>
     </body>
 </html>

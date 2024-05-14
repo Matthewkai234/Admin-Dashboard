@@ -1,0 +1,8 @@
+.error-msg{
+    color: #b83535;
+    margin-top: 0.5rem
+}
+#RegButton {
+    /* Add a transition for smooth color change */
+    transition: background-color 0.5s ease;
+}
