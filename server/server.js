@@ -1,11 +1,19 @@
 const path = require("path");
+const jwt = require("jsonwebtoken");
 const express = require("express");
 
 const moviesRouter = require("./Routes/movies");
 const linksRouter = require("./Routes/links");
 const tagsRouter = require("./Routes/tags");
 const ratingsRouter = require("./Routes/ratings");
-const genomeTagsRouter = require("./Routes/genomeTags")
+const genomeTagsRouter = require("./Routes/genomeTags");
+const genomeScoresRouter = require("./Routes/genomeScores");
+const forgotPasswordRouter = require("./Routes/forgotPassword");
+const { PORT } = require("./Common/server");
+const { usersCollection } = require("./Common/mongo");
+const { JWT_SECRET } = require("./Common/jwt");
+const { ObjectId } = require("mongodb");
+const { validatePassword } = require("./Common/server");
 
 const app = express();
 
@@ -13,7 +21,7 @@ const { run, insertUser, loginUser } = require("./connector_mongodb");
 const session = require("express-session");
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
     name: "loginUser",
@@ -25,11 +33,11 @@ app.use(
     },
   }),
 );
+app.set("view engine", "ejs");
 
 /******************************************************** Routes ********************************************************/
 
 app.get("/", (req, res) => {
-  console.log(!req.session.loginUser);
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
@@ -73,9 +81,31 @@ app.get("/signup", (req, res) => {
 
 app.get("/forget-password", (req, res) => {
   if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
     res.sendFile(path.join(__dirname, "..", "client", "password.html"));
+  } else {
+    res.status(301).redirect("/");
+  }
+});
+
+app.get("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+
+  const objectId = new ObjectId(id);
+  const oldUser = await usersCollection.findOne({ _id: objectId });
+
+  if (!oldUser) {
+    return res.redirect("/forget-password");
+  }
+
+  const secret = JWT_SECRET + oldUser.password;
+
+  try {
+    jwt.verify(token, secret);
+    return res.render(
+      path.join(__dirname, "..", "client", "reset-password.ejs"),
+    );
+  } catch (e) {
+    return res.redirect("/forget-password");
   }
 });
 
@@ -87,12 +117,27 @@ app.get("/charts", (req, res) => {
   }
 });
 
-app.get("/tables", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.sendFile(path.join(__dirname, "..", "client", "tables.html"));
-  }
+app.get("/tables-links", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "tables-links.html"));
+});
+app.get("/tables-movies", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "tables-movies.html"));
+});
+
+app.get("/tables-tags", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "tables-tags.html"));
+});
+
+app.get("/tables-ratings", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "tables-ratings.html"));
+});
+
+app.get("/tables-genome-tags", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "tables-genome-tags.html"));
+});
+
+app.get("/tables-genome-scores", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "tables-genome-scores.html"));
 });
 
 app.post("/api/sign-up", async (req, res) => {
@@ -134,6 +179,38 @@ app.post("/api/logout", async (req, res) => {
   });
 });
 
+app.post("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  const { password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res.json({ error: "Passwords are not the same" });
+  }
+
+  if (!validatePassword(password)) {
+    return res.json({ error: "Password is not valid" });
+  }
+
+  const objectId = new ObjectId(id);
+  const oldUser = await usersCollection.findOne({ _id: objectId });
+
+  if (!oldUser) {
+    return res.redirect("/forget-password");
+  }
+
+  const secret = JWT_SECRET + oldUser.password;
+
+  try {
+    jwt.verify(token, secret);
+    await usersCollection.updateOne(
+      { _id: objectId },
+      { $set: { password: password } },
+    );
+    return res.status(304).redirect("/login");
+  } catch (e) {
+    return res.status(500).redirect("/forget-password");
+  }
+});
+
 /******************************************************** Errors ********************************************************/
 app.get("/401", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "client", "401.html"));
@@ -144,72 +221,21 @@ app.get("/500", (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "..", "client")));
-
-
-app.get('/', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "index.html")); 
-})
-
-app.get('/layout-static', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "layout-static.html")); 
-})
-
-app.get('/layout-sidenav-light', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "layout-sidenav-light.html")); 
-})
-
-app.get('/login', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "login.html")); 
-})
-
-app.get('/signup', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "register.html")); 
-})
-
-app.get('/forget-password', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "password.html")); 
-})
-
-app.get('/charts', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "charts.html")); 
-})
-
-app.get('/tables-links', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "tables-links.html")); 
-})
-app.get('/tables-movies', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "tables-movies.html")); 
-})
-
-app.get('/tables-tags', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "tables-tags.html")); 
-})
-
-app.get('/tables-ratings', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "tables-ratings.html")); 
-})
-
-app.get('/tables-genome-tags', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "tables-genome-tags.html")); 
-})
+app.use("/static", express.static(path.join(__dirname, "..", "client")));
 
 app.use("/api/movie", moviesRouter);
 app.use("/api/links", linksRouter);
 app.use("/api/tags", tagsRouter);
 app.use("/api/ratings", ratingsRouter);
 app.use("/api/genome-tags", genomeTagsRouter);
+app.use("/api/genome-scores", genomeScoresRouter);
+app.use("/api/forgot-password", forgotPasswordRouter);
 
-/******************************************************** Errors ********************************************************/ 
-app.get('/401', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "401.html")); 
-})
-app.get('/500', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "500.html")); 
-})
-app.get('/*', (req,res)=>{
-    res.sendFile(path.join(__dirname,"..","client", "404.html")); 
-})
-/***********************************************************************************************************************/ 
+/******************************************************** Errors ********************************************************/
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "404.html"));
+});
+/***********************************************************************************************************************/
 // Start the database connection when the server starts
 
 run()
@@ -220,7 +246,6 @@ run()
     console.error("Error connecting to database:", error);
   });
 
-const PORT = process.env.PORT || 42069;
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });

@@ -1,36 +1,33 @@
 const dataTableBodyId = document.getElementById("dataTableGenomeTagsId")
+let table;
+const loadMoreBtn = document.getElementById("genome-tags-load-more")
+loadMoreBtn.addEventListener("click", async () => {
+    await genomeTagsData()
+})
 
-    async function fetchMovies(){
-        const res = await fetch("/api/genome-tags/get-genome-tags")
-        const data = await res.json()
-        return data
-    }
-    async function linksData(){
-    const data = await fetchMovies()
-    dataTableBodyId.textContent=""
-    data.forEach((item, index)=>{
 
-        const row = document.createElement("tr")
-        const tagId = document.createElement("td")
-        const tag = document.createElement("td")
-        tagId.textContent=item.tagId
-        tag.textContent=item.tag
-        row.appendChild(tagId)
-        row.appendChild(tag)
-        dataTableBodyId.appendChild(row)
-        console.log(2)
-    })
+async function fetchGenomeTags() {
+    const res = await fetch("/api/genome-tags/get-genome-tags")
+    const data = await res.json()
+    return data
+}
+
+async function genomeTagsData() {
+    const data = await fetchGenomeTags();
+    if (table != undefined) {
+        table.insert({
+            headings: data.headers,
+            data: data.data,
+        });
     }
-    
-    window.addEventListener('DOMContentLoaded', async event => {
-        // Simple-DataTables
-        // https://github.com/fiduswriter/Simple-DataTables/wiki
-        await linksData()
-        const datatablesSimple = document.getElementById('datatablesSimple');
-        if (datatablesSimple) {
-            new simpleDatatables.DataTable(datatablesSimple);
-        }
-    });
+}
+
+window.addEventListener('DOMContentLoaded', async event => {
+    // Simple-DataTables
+    // https://github.com/fiduswriter/Simple-DataTables/wiki
+    table = new simpleDatatables.DataTable("#datatablesSimple");
+    await genomeTagsData()
+});
     
 
     
