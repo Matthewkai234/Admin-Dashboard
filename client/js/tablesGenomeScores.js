@@ -1,18 +1,18 @@
-const dataTableBodyId = document.getElementById("dataTableBodyId")
+const dataTableBodyId = document.getElementById("dataTableGenomeScoresId")
 let table;
-const loadMoreBtn = document.getElementById("movies-load-more")
+const loadMoreBtn = document.getElementById("genome-scores-load-more")
 loadMoreBtn.addEventListener("click", async () => {
-    await movieData()
+    await genomeScoresData()
 })
 
-async function fetchMovies() {
-    const res = await fetch("/api/movie/get-movies")
+async function fetchGenomeScores() {
+    const res = await fetch("/api/genome-scores/get-genome-scores")
     const data = await res.json()
     return data
 }
 
-async function movieData() {
-    const data = await fetchMovies();
+async function genomeScoresData() {
+    const data = await fetchGenomeScores();
     if (table != undefined) {
         table.insert({
             headings: data.headers,
@@ -25,5 +25,8 @@ window.addEventListener('DOMContentLoaded', async event => {
     // Simple-DataTables
     // https://github.com/fiduswriter/Simple-DataTables/wiki
     table = new simpleDatatables.DataTable("#datatablesSimple");
-    await movieData()
+    await genomeScoresData()
 });
+    
+
+    

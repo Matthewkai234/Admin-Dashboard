@@ -31,7 +31,16 @@
                         <li><a class="dropdown-item" href="#!">Settings</a></li>
                         <li><a class="dropdown-item" href="#!">Activity Log</a></li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="#!">Logout</a></li>
+                        <li><a id="logout" class="dropdown-item" href="#!">Logout</a></li>
+                        <script>
+                            const logout = document.getElementById("logout");
+    
+                            logout.addEventListener("click", async () => {
+                                await fetch("/api/logout", {
+                                    method: "POST",
+                                });
+                            });
+                        </script>
                     </ul>
                 </li>
             </ul>
@@ -105,6 +114,7 @@
                                     <a class="nav-link" href="/tables-tags">Tags Table</a>
                                     <a class="nav-link" href="/tables-ratings">Ratings Table</a>
                                     <a class="nav-link" href="/tables-genome-tags">Genome Tags Table</a>
+                                    <a class="nav-link" href="/tables-genome-scores">Genome Scores Table</a>
                                 </nav>
                             </div>
                         </div>

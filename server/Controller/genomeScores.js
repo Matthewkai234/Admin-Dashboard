@@ -4,8 +4,8 @@ const csv = require("csv-parser");
 const readline = require("readline");
 const {Readable} = require("stream");
 
-async function* getGenomeTags(){
-    const fileStream = fs.createReadStream(path.join("Data", "genome-tags.csv"));
+async function* getGenomeScores(){
+    const fileStream = fs.createReadStream(path.join("Data", "genome-scores.csv"));
     const rl = readline.createInterface({
         input: fileStream,
         crlfDelay: Infinity
@@ -46,5 +46,5 @@ function parseCSV(chunkString) {
     });
 }
 module.exports={
-    getGenomeTags
+    getGenomeScores
 }

@@ -32,7 +32,16 @@
                         <li><a class="dropdown-item" href="#!">Settings</a></li>
                         <li><a class="dropdown-item" href="#!">Activity Log</a></li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="#!">Logout</a></li>
+                        <li><a id="logout" class="dropdown-item" href="#!">Logout</a></li>
+                        <script>
+                            const logout = document.getElementById("logout");
+    
+                            logout.addEventListener("click", async () => {
+                                await fetch("/api/logout", {
+                                    method: "POST",
+                                });
+                            });
+                        </script>
                     </ul>
                 </li>
             </ul>
@@ -106,6 +115,7 @@
                                     <a class="nav-link" href="/tables-tags">Tags Table</a>
                                     <a class="nav-link" href="/tables-ratings">Ratings Table</a>
                                     <a class="nav-link" href="/tables-genome-tags">Genome Tags Table</a>
+                                    <a class="nav-link" href="/tables-genome-scores">Genome Scores Table</a>
                                 </nav>
                             </div>
                         </div>
@@ -134,7 +144,8 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>
-                                DataTable Example
+                                Genome-Tags DataTable
+                                <button class="btn btn-primary" id="genome-tags-load-more">Load More</button>
                             </div>
                             <div class="card-body">
                                 <table id="datatablesSimple">

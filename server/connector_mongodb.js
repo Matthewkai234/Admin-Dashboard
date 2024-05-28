@@ -1,10 +1,7 @@
-const { MongoClient } = require("mongodb");
+const { client, usersCollection } = require("./Common/mongo");
+const { validatePassword } = require("./Common/server");
 
 // Replace the uri string with your connection string.
-const uri =
-  "mongodb+srv://khsaif5:8mgeD8nEWuhz9gD0@admindb.jryohb3.mongodb.net/?retryWrites=true&w=majority&appName=adminDB";
-
-const client = new MongoClient(uri);
 
 async function run() {
   await client.connect();
@@ -17,8 +14,6 @@ async function insertUser(
   password,
   confirmPassword,
 ) {
-  const database = client.db("web-2-db");
-  const users = database.collection("users");
   if (password != confirmPassword) {
     throw "passwords do not match";
   }
@@ -32,26 +27,23 @@ async function insertUser(
     throw "invalid email";
   }
 
-  const doesEmailExist = await users.findOne({ email });
+  const doesEmailExist = await usersCollection.findOne({ email });
   if (doesEmailExist) {
     throw "email already exists";
   }
-  await users.insertOne({
+  await usersCollection.insertOne({
     firstName,
     lastName,
     email,
-    password
-    //createdAt : new Date() 
+    password,
+    //createdAt : new Date()
   });
 
   //console.log(`A document was inserted with the _id: ${result.insertedId}`);
 }
 
 async function loginUser(email, password) {
-  const database = client.db("web-2-db");
-  const users = database.collection("users");
-
-  const dbUser = await users.findOne({ email });
+  const dbUser = await usersCollection.findOne({ email });
 
   if (!dbUser) {
     throw "email does not exist";
@@ -60,26 +52,6 @@ async function loginUser(email, password) {
   if (dbUser.password !== password) {
     throw "invalid email or password";
   }
-}
-
-function validatePassword(password) {
-  if (password.length < 8 || password.length > 16) {
-    return false;
-  }
-  const capitalRegex = /[A-Z]/;
-  const smallRegex = /[a-z]/;
-  const numberRegex = /[0-9]/;
-  const symbolRegex = /[@!_$%#]/;
-
-  if (
-    !capitalRegex.test(password) ||
-    !smallRegex.test(password) ||
-    !numberRegex.test(password) ||
-    !symbolRegex.test(password)
-  ) {
-    return false;
-  }
-  return true;
 }
 
 module.exports = { run, insertUser, loginUser };
