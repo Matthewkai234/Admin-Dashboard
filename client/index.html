@@ -141,7 +141,7 @@
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        Start Bootstrap
+                        <span id="username">Start Bootstrap</span>
                     </div>
                 </nav>
             </div>
@@ -269,6 +269,28 @@
                 </footer>
             </div>
         </div>
+
+        <script>
+            async function fetchUserData() 
+            {
+                try {
+                    const response = await fetch('/api/user');
+                    const data = await response.json();
+                    if (data.email) {
+                        const fullName = `${data.firstName} ${data.lastName}`;
+                        document.getElementById('username').textContent = fullName;
+                    } else {
+                        document.getElementById('username').textContent = 'Guest';
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    document.getElementById('username').textContent = 'Guest';
+                }
+            }
+    
+            // Fetch and display the user data when the page loads
+            document.addEventListener('DOMContentLoaded', fetchUserData);
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>

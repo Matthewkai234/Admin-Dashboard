@@ -170,7 +170,7 @@ app.post("/api/sign-up", async (req, res) => {
   console.log("User inserted successfully, now it should redirect to /login");
 });
 
-app.post("/api/login", async (req, res) => {
+/* app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     await loginUser(email, password);
@@ -181,6 +181,27 @@ app.post("/api/login", async (req, res) => {
     return;
   }
   res.redirect("/");
+}); */
+app.post("/api/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    await loginUser(email, password, req);
+    res.redirect("/");
+  } catch (error) {
+    console.error(error);
+    res.redirect("/401");
+  }
+});
+app.get("/api/user", (req, res) => {
+  if (req.session.loginUser && req.session.loginUser.isLogged) {
+    res.json({
+      email: req.session.loginUser.email,
+      firstName: req.session.loginUser.firstName,
+      lastName: req.session.loginUser.lastName
+    });
+  } else {
+    res.status(401).json({ error: "Not logged in" });
+  }
 });
 
 app.post("/api/logout", async (req, res) => {

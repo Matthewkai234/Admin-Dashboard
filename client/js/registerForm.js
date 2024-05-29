@@ -6,26 +6,26 @@ let lastNameField = document.getElementById("inputLastName");
 
 let emailField = document.getElementById("inputEmail");
 
-let registerButton = document.getElementById("RegButton");
+let logBtn = document.getElementById("RegButton");
 let errorMsgs = document.getElementsByClassName("error-msg");
 
 //------------------------------ FUNCTIONS ------------------------------
 function regButtonError(valid) {
     if(!valid)
     {
-        registerButton.style.backgroundColor = "#D32F2F";
+        logBtn.style.backgroundColor = "#D32F2F";
 
-        registerButton.textContent = "Oopsie whoopsie!, there's something wrong in the form";
+        logBtn.textContent = "Oopsie whoopsie!, there's something wrong in the form";
 
         setTimeout(() => {
-            registerButton.style.backgroundColor = "#0d6efd"; // Reset to default background color
-            registerButton.textContent = "Create Account"; // Reset to default text
+            logBtn.style.backgroundColor = "#0d6efd"; // Reset to default background color
+            logBtn.textContent = "Create Account"; // Reset to default text
         }, 3000); // 3000 milliseconds = 3 seconds
     }
     else
     {
-        registerButton.style.backgroundColor = "#4CAF50";
-        registerButton.textContent = "Success!";
+        logBtn.style.backgroundColor = "#4CAF50";
+        logBtn.textContent = "Success!";
     }
     
 }
@@ -121,4 +121,4 @@ passwordField.addEventListener("input", function() {
     document.getElementById("passwordHelpBlock").style.display = "block";
 });
 
-registerButton.addEventListener("click", formValidation);
+logBtn.addEventListener("click", formValidation);
