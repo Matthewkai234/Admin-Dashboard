@@ -117,6 +117,22 @@ app.get("/charts", (req, res) => {
   }
 });
 
+app.get("/movies-chart", (req, res) => {
+  if (!req.session.loginUser) {
+    res.status(301).redirect("/login");
+  } else {
+    res.sendFile(path.join(__dirname, "..", "client", "movies-chart.html"));
+  }
+});
+
+app.get("/movies-genres-chart", (req, res) => {
+  if (!req.session.loginUser) {
+    res.status(301).redirect("/login");
+  } else {
+    res.sendFile(path.join(__dirname, "..", "client", "movies-genres-chart.html"));
+  }
+});
+
 app.get("/tables-links", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "client", "tables-links.html"));
 });
