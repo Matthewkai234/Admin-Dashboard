@@ -35,11 +35,17 @@
                         <li><a id="logout" class="dropdown-item" href="#!">Logout</a></li>
                         <script>
                             const logout = document.getElementById("logout");
-    
+
                             logout.addEventListener("click", async () => {
-                                await fetch("/api/logout", {
+                                const response = await fetch("/api/logout", {
                                     method: "POST",
                                 });
+
+                                if (response.ok) {
+                                    window.location.href = "/login";
+                                } else {
+                                    console.error("Logout failed");
+                                }
                             });
                         </script>
                     </ul>
@@ -99,16 +105,28 @@
                                     </div>
                                 </nav>
                             </div>
+<!-- -------------------------------------------------- Addons -------------------------------------------------- -->
                             <div class="sb-sidenav-menu-heading">Addons</div>
-                            <a class="nav-link" href="/charts">
+
+<!-- -------------------------------------------------- First Collapsible Section -------------------------------------------------- -->
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseCharts" aria-expanded="false" aria-controls="pagesCollapseCharts">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Charts
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
+                            <div class="collapse" id="pagesCollapseCharts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="/movies-chart">Movies per year</a>
+                                    <a class="nav-link" href="/movies-genres-chart">Movies per genre</a>
+                                </nav>
+                            </div>
+
+                            <!-- Second Collapsible Section -->
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseTables" aria-expanded="false" aria-controls="pagesCollapseTables">
                                 Tables
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                            <div class="collapse" id="pagesCollapseTables" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordionPages">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="/tables-movies">Movies Table</a>
                                     <a class="nav-link" href="/tables-links">Links Table</a>
@@ -118,6 +136,7 @@
                                     <a class="nav-link" href="/tables-genome-scores">Genome Scores Table</a>
                                 </nav>
                             </div>
+
                         </div>
                     </div>
                     <div class="sb-sidenav-footer">
@@ -133,7 +152,7 @@
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active">Dashboard</li>
                         </ol>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-xl-3 col-md-6">
                                 <div class="card bg-primary text-white mb-4">
                                     <div class="card-body">Primary Card</div>
@@ -170,24 +189,39 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-area me-1"></i>
-                                        Area Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6">
+                        </div> -->
+                        <div class="row">                            
+                            <div class="col-12">
                                 <div class="card mb-4">
                                     <div class="card-header">
                                         <i class="fas fa-chart-bar me-1"></i>
-                                        Bar Chart Example
+                                        Movies per year
+                                        <a class="btn btn-secondary ms-3" href="/movies-chart">
+                                             View full screen
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                                                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                                            </svg>                                            
+                                        </a>
                                     </div>
-                                    <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
+                                    <div class="card-body"><canvas id="dash-movies-year" width="100%" height="30"></canvas></div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        Movies per genre
+                                        <a class="btn btn-secondary ms-3" href="/movies-genres-chart">
+                                             View full screen
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                                                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                                            </svg>                                            
+                                        </a>
+                                    </div>
+                                    <div class="card-body"><canvas id="dash-movie-genre" width="100%" height="30"></canvas></div>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +229,7 @@
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>
                                 DataTable Example
-                                <button class="btn btn-primary" id="movies-load-more">Load More</button>
+                                <button class="btn btn-primary ms-3" id="movies-load-more">Load More</button>
                             </div>
                             <div class="card-body">
                                 <table id="datatablesSimple">
@@ -239,7 +273,8 @@
         <script src="js/scripts.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
         <script src="assets/demo/chart-area-demo.js"></script>
-        <script src="assets/demo/chart-bar-demo.js"></script>
+        <script src="js/moviesYear-chartBar.js"></script>
+        <script src="js/moviesGenre-chartBar.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <!-- <script src="js/datatables-simple-demo.js"></script> -->
         <script src="js/moviesTable.js"></script>
