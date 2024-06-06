@@ -19,6 +19,7 @@ const app = express();
 
 const { run, insertUser, loginUser } = require("./connector_mongodb");
 const session = require("express-session");
+const { title } = require("process");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -46,25 +47,11 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/layout-static", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.render("layout-static");
-  }
-});
-
-app.get("/layout-sidenav-light", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.render("layout-sidenav-light");
-  }
-});
-
 app.get("/login", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("login");
+    res.render("login",{
+      title: "Login"
+    });
   } else {
     res.status(301).redirect("/");
   }
@@ -80,7 +67,7 @@ app.get("/signup", (req, res) => {
 
 app.get("/forget-password", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("password");
+    res.render("forget-password");
   } else {
     res.status(301).redirect("/");
   }
@@ -100,17 +87,11 @@ app.get("/reset-password/:id/:token", async (req, res) => {
 
   try {
     jwt.verify(token, secret);
-    return res.render("reset-password");
+    return res.render("reset-password",{
+      title: "Reset password"
+    });
   } catch (e) {
     return res.redirect("/forget-password");
-  }
-});
-
-app.get("/charts", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.render("charts");
   }
 });
 
@@ -234,16 +215,42 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 });
 
 /******************************************************** Errors ********************************************************/
-app.get("/401", (req, res) => {
-  res.render("401");
+app.get('/401', (req, res) => {
+  res.render('401', {
+      title: 'Error 401',
+      errorCode: '401',
+      errorMessage: 'Unauthorized',
+      errorDescription: 'Access to this resource is denied.',
+      additionalInfo: 'If you got here from the login page, check your email and password!',
+      returnUrl_1: '/index',
+      returnText_1: 'Return to Dashboard',
+      returnUrl_2: '/login',
+      returnText_2: 'Return to Login'      
+  });
 });
 
-app.get("/500", (req, res) => {
-  res.render("500");
+app.get('/404', (req, res) => {
+  res.render('404', {
+      title: 'Error 404',
+      errorImageSrc: 'assets/img/error-404-monochrome.svg',
+      errorMessage: 'This requested URL was not found on this server.',
+      returnUrl: '/index',
+      returnText: 'Return to Dashboard'     
+  });
 });
 
-app.use(express.static(path.join(__dirname, "..", "client")));
-app.use("/static", express.static(path.join(__dirname, "..", "client")));
+app.get('/500', (req, res) => {
+  res.render('500', {
+      title: 'Error 500',
+      errorCode: '500',
+      errorMessage: 'Internal Server Error',
+      returnUrl: '/index',  // Use the root route or any other route you have set up in your Express app
+      returnText: 'Return to Dashboard'
+  });
+});
+
+app.use(express.static(path.join(__dirname, "..", "client"))); //serve ejs pages
+app.use("/static", express.static(path.join(__dirname, ".", "public"))); //serve the assets
 
 app.use("/api/movie", moviesRouter);
 app.use("/api/links", linksRouter);
