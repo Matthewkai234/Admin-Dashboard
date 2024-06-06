@@ -34,6 +34,7 @@ app.use(
   }),
 );
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "..", "client"));
 
 /******************************************************** Routes ********************************************************/
 
@@ -41,7 +42,7 @@ app.get("/", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+    res.render("index");
   }
 });
 
@@ -49,7 +50,7 @@ app.get("/layout-static", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "layout-static.html"));
+    res.render("layout-static");
   }
 });
 
@@ -57,15 +58,13 @@ app.get("/layout-sidenav-light", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(
-      path.join(__dirname, "..", "client", "layout-sidenav-light.html"),
-    );
+    res.render("layout-sidenav-light");
   }
 });
 
 app.get("/login", (req, res) => {
   if (!req.session.loginUser) {
-    res.sendFile(path.join(__dirname, "..", "client", "login.html"));
+    res.render("login");
   } else {
     res.status(301).redirect("/");
   }
@@ -73,7 +72,7 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
   if (!req.session.loginUser) {
-    res.sendFile(path.join(__dirname, "..", "client", "register.html"));
+    res.render("register");
   } else {
     res.status(301).redirect("/");
   }
@@ -81,7 +80,7 @@ app.get("/signup", (req, res) => {
 
 app.get("/forget-password", (req, res) => {
   if (!req.session.loginUser) {
-    res.sendFile(path.join(__dirname, "..", "client", "password.html"));
+    res.render("password");
   } else {
     res.status(301).redirect("/");
   }
@@ -101,9 +100,7 @@ app.get("/reset-password/:id/:token", async (req, res) => {
 
   try {
     jwt.verify(token, secret);
-    return res.render(
-      path.join(__dirname, "..", "client", "reset-password.ejs"),
-    );
+    return res.render("reset-password");
   } catch (e) {
     return res.redirect("/forget-password");
   }
@@ -113,7 +110,7 @@ app.get("/charts", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "charts.html"));
+    res.render("charts");
   }
 });
 
@@ -121,7 +118,7 @@ app.get("/movies-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "movies-chart.html"));
+    res.render("movies-chart");
   }
 });
 
@@ -129,31 +126,32 @@ app.get("/movies-genres-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "movies-genres-chart.html"));
+    res.render("movies-genres-chart");
   }
 });
 
 app.get("/tables-links", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-links.html"));
+  res.render("tables-links");
 });
+
 app.get("/tables-movies", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-movies.html"));
+  res.render("tables-movies");
 });
 
 app.get("/tables-tags", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-tags.html"));
+  res.render("tables-tags");
 });
 
 app.get("/tables-ratings", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-ratings.html"));
+  res.render("tables-ratings");
 });
 
 app.get("/tables-genome-tags", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-genome-tags.html"));
+  res.render("tables-genome-tags");
 });
 
 app.get("/tables-genome-scores", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-genome-scores.html"));
+  res.render("tables-genome-scores");
 });
 
 app.post("/api/sign-up", async (req, res) => {
@@ -162,26 +160,12 @@ app.post("/api/sign-up", async (req, res) => {
     await insertUser(firstName, lastName, email, password, confirmPassword);
   } catch (e) {
     console.error(e);
-    res
-      .status(401)
-      .sendFile(path.join(__dirname, "..", "client", "register.html"));
+    res.status(401).render("register");
   }
   res.redirect("/login");
   console.log("User inserted successfully, now it should redirect to /login");
 });
 
-/* app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    await loginUser(email, password);
-    req.session.loginUser = { email: email, isLogged: true };
-    req.session.save();
-  } catch (e) {
-    console.error(e);
-    return;
-  }
-  res.redirect("/");
-}); */
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -192,6 +176,7 @@ app.post("/api/login", async (req, res) => {
     res.redirect("/401");
   }
 });
+
 app.get("/api/user", (req, res) => {
   if (req.session.loginUser && req.session.loginUser.isLogged) {
     res.json({
@@ -250,11 +235,11 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 
 /******************************************************** Errors ********************************************************/
 app.get("/401", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "401.html"));
+  res.render("401");
 });
 
 app.get("/500", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "500.html"));
+  res.render("500");
 });
 
 app.use(express.static(path.join(__dirname, "..", "client")));
@@ -270,8 +255,9 @@ app.use("/api/forgot-password", forgotPasswordRouter);
 
 /******************************************************** Errors ********************************************************/
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "404.html"));
+  res.render("404");
 });
+
 /***********************************************************************************************************************/
 // Start the database connection when the server starts
 
@@ -286,4 +272,3 @@ run()
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
-//app.listen(42069);
