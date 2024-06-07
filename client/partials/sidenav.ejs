@@ -66,7 +66,15 @@
         </div>
         <div class="sb-sidenav-footer">
             <div class="small">Logged in as:</div>
-            Guest
+            <span id="username">NoName</span>
         </div>
     </nav>
 </div>
+
+<!-- <script src="/static/js/sidenav.js"></script> -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidenavLoadedEvent = new Event('sidenavLoaded');
+        window.dispatchEvent(sidenavLoadedEvent);
+    });
+</script>

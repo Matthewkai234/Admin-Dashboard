@@ -20,6 +20,7 @@ const app = express();
 const { run, insertUser, loginUser } = require("./connector_mongodb");
 const session = require("express-session");
 const { title } = require("process");
+const { timeEnd } = require("console");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -37,13 +38,17 @@ app.use(
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "client"));
 
-/******************************************************** Routes ********************************************************/
+app.use(express.static(path.join(__dirname, "..", "client"))); //serve ejs pages
+app.use("/static", express.static(path.join(__dirname, ".", "public"))); //serve the assets
 
+/******************************************************** Routes ********************************************************/
 app.get("/", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("index");
+    res.render("index",{
+      title: "Home"
+    });
   }
 });
 
@@ -59,7 +64,9 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("register");
+    res.render("register",{
+      title: "Create new account"
+    });
   } else {
     res.status(301).redirect("/");
   }
@@ -67,50 +74,58 @@ app.get("/signup", (req, res) => {
 
 app.get("/forget-password", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("forget-password");
+    res.render("forget-password",{
+      title: "Password Recovery"
+    });
   } else {
     res.status(301).redirect("/");
   }
 });
 
-app.get("/reset-password/:id/:token", async (req, res) => {
+app.get('/reset-password/:id/:token', async (req, res) => {
   const { id, token } = req.params;
 
   const objectId = new ObjectId(id);
   const oldUser = await usersCollection.findOne({ _id: objectId });
 
   if (!oldUser) {
-    return res.redirect("/forget-password");
+    return res.redirect('/forget-password');
   }
 
   const secret = JWT_SECRET + oldUser.password;
 
   try {
     jwt.verify(token, secret);
-    return res.render("reset-password",{
-      title: "Reset password"
+    return res.render('reset-password', {
+      title: 'Reset Password'
     });
   } catch (e) {
-    return res.redirect("/forget-password");
+    return res.redirect('/forget-password');
   }
 });
 
-app.get("/movies-chart", (req, res) => {
+/************************************* Charts **************************************/
+app.get("/movies-per-year-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("movies-chart");
+    res.render("movies-per-year-chart",{
+      title: "Movies per year chart"
+    });
   }
 });
 
-app.get("/movies-genres-chart", (req, res) => {
+app.get("/movies-per-genre-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("movies-genres-chart");
+    res.render("movies-per-genre-chart",{
+      title: "Movies per genre cart"
+    });
   }
 });
 
+/************************************* Data tables **************************************/
 app.get("/tables-links", (req, res) => {
   res.render("tables-links");
 });
@@ -135,13 +150,16 @@ app.get("/tables-genome-scores", (req, res) => {
   res.render("tables-genome-scores");
 });
 
+/************************************* Authentication Handlers **************************************/
 app.post("/api/sign-up", async (req, res) => {
   const { firstName, lastName, email, password, confirmPassword } = req.body;
   try {
     await insertUser(firstName, lastName, email, password, confirmPassword);
   } catch (e) {
     console.error(e);
-    res.status(401).render("register");
+    res.status(401).render("register",{
+      title: "Create new account"
+    });
   }
   res.redirect("/login");
   console.log("User inserted successfully, now it should redirect to /login");
@@ -159,7 +177,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.get("/api/user", (req, res) => {
-  if (req.session.loginUser && req.session.loginUser.isLogged) {
+  if (req.session.loginUser?.isLogged) {
     res.json({
       email: req.session.loginUser.email,
       firstName: req.session.loginUser.firstName,
@@ -222,7 +240,7 @@ app.get('/401', (req, res) => {
       errorMessage: 'Unauthorized',
       errorDescription: 'Access to this resource is denied.',
       additionalInfo: 'If you got here from the login page, check your email and password!',
-      returnUrl_1: '/index',
+      returnUrl_1: '/',
       returnText_1: 'Return to Dashboard',
       returnUrl_2: '/login',
       returnText_2: 'Return to Login'      
@@ -234,7 +252,7 @@ app.get('/404', (req, res) => {
       title: 'Error 404',
       errorImageSrc: 'assets/img/error-404-monochrome.svg',
       errorMessage: 'This requested URL was not found on this server.',
-      returnUrl: '/index',
+      returnUrl: '/',
       returnText: 'Return to Dashboard'     
   });
 });
@@ -244,14 +262,12 @@ app.get('/500', (req, res) => {
       title: 'Error 500',
       errorCode: '500',
       errorMessage: 'Internal Server Error',
-      returnUrl: '/index',  // Use the root route or any other route you have set up in your Express app
+      returnUrl: '/',  // Use the root route or any other route you have set up in your Express app
       returnText: 'Return to Dashboard'
   });
 });
 
-app.use(express.static(path.join(__dirname, "..", "client"))); //serve ejs pages
-app.use("/static", express.static(path.join(__dirname, ".", "public"))); //serve the assets
-
+/******************************************************** External Routes ********************************************************/
 app.use("/api/movie", moviesRouter);
 app.use("/api/links", linksRouter);
 app.use("/api/tags", tagsRouter);
@@ -260,22 +276,23 @@ app.use("/api/genome-tags", genomeTagsRouter);
 app.use("/api/genome-scores", genomeScoresRouter);
 app.use("/api/forgot-password", forgotPasswordRouter);
 
-/******************************************************** Errors ********************************************************/
+/******************************************************** 404 Error ********************************************************/
 app.get("/*", (req, res) => {
-  res.render("404");
+  res.redirect("404");
 });
 
 /***********************************************************************************************************************/
-// Start the database connection when the server starts
-
+// Start the database connection then the server.
 run()
   .then(() => {
     console.log("Database connected successfully!");
+
+    app.listen(PORT, () => {
+      console.log(`Server is listening on port ${PORT}, ` + `http://localhost:${PORT}/`);
+    });
+
   })
   .catch((error) => {
     console.error("Error connecting to database:", error);
   });
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});

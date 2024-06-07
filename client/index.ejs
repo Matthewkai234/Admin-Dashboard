@@ -19,11 +19,12 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Dashboard</h1>
+                        <h1 class="mt-4" id="userWelcome">Dashboard</h1>
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active">Dashboard</li>
                         </ol>
-                        <%- body %>
+                        <%- include('movies-per-genre-chart') %>
+                        <%- include('movies-per-year-chart') %>
                     </div>
                 </main>
                 <%- include('partials/footer') %>
@@ -34,9 +35,36 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
       
         <script src="/static/js/scripts.js"></script>
-        <script src="/static/js/moviesYear-chartBar.js"></script>
+        <!-- <script src="/static/js/moviesYear-chartBar.js"></script>
         <script src="/static/js/moviesGenre-chartBar.js"></script>        
-        <script src="/static/js/moviesTable.js"></script>
+        <script src="/static/js/moviesTable.js"></script> -->
+        <script src="/static/js/sidenav.js"></script>
 
+        <script>
+            async function fetchUserData() 
+            {
+                try {
+                    const response = await fetch('/api/user');
+                    const data = await response.json();
+                    if (data.email) {
+                        const fullName = `${data.firstName} ${data.lastName}`;
+                        const firstName = `${data.firstName}`;
+
+                        document.getElementById('username').textContent = fullName;
+                        document.getElementById("userWelcome").textContent = "👋 Hello, " + firstName + "!";
+                    } else {
+                        document.getElementById('username').textContent = 'Guest';
+                        document.getElementById("userWelcome").textContent = "Welcome to the movies dashboard";
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    document.getElementById('username').textContent = 'Guest';
+                }
+            }
+    
+            // Fetch and display the user data when the page loads
+            //document.addEventListener('DOMContentLoaded', fetchUserData);
+            window.addEventListener('sidenavLoaded', fetchUserData);
+        </script>
     </body>
 </html>
