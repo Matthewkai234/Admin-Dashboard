@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
 
 app.get("/login", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("login",{
+    res.render("auth/login",{
       title: "Login"
     });
   } else {
@@ -64,7 +64,7 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("register",{
+    res.render("auth/register",{
       title: "Create new account"
     });
   } else {
@@ -74,7 +74,7 @@ app.get("/signup", (req, res) => {
 
 app.get("/forget-password", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("forget-password",{
+    res.render("auth/forget-password",{
       title: "Password Recovery"
     });
   } else {
@@ -96,7 +96,7 @@ app.get('/reset-password/:id/:token', async (req, res) => {
 
   try {
     jwt.verify(token, secret);
-    return res.render('reset-password', {
+    return res.render('auth/reset-password', {
       title: 'Reset Password'
     });
   } catch (e) {
@@ -109,7 +109,7 @@ app.get("/movies-per-year-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("movies-per-year-chart",{
+    res.render("tables/movies-per-year-chart",{
       title: "Movies per year chart"
     });
   }
@@ -119,7 +119,7 @@ app.get("/movies-per-genre-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("movies-per-genre-chart",{
+    res.render("tables/movies-per-genre-chart",{
       title: "Movies per genre cart"
     });
   }
@@ -127,37 +127,37 @@ app.get("/movies-per-genre-chart", (req, res) => {
 
 /************************************* Data tables **************************************/
 app.get("/table-links", (req, res) => {
-  res.render("table-links",{
+  res.render("tables/table-links",{
     title: "Links table"
   });
 });
 
 app.get("/table-movies", (req, res) => {
-  res.render("table-movies",{
+  res.render("tables/table-movies",{
     title: "Movies"
   });
 });
 
 app.get("/table-tags", (req, res) => {
-  res.render("table-tags",{
+  res.render("tables/table-tags",{
     title: "Tags table"
   });
 });
 
 app.get("/table-ratings", (req, res) => {
-  res.render("table-ratings",{
+  res.render("tables/table-ratings",{
     title:"Ratings table"
   });
 });
 
 app.get("/table-genome-tags", (req, res) => {
-  res.render("table-genome-tags",{
+  res.render("tables/table-genome-tags",{
     title: "Genome Tags"
   });
 });
 
 app.get("/table-genome-scores", (req, res) => {
-  res.render("table-genome-scores",
+  res.render("tables/table-genome-scores",
     {
       title: "Genome Scores"
     }
@@ -248,7 +248,7 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 
 /******************************************************** Errors ********************************************************/
 app.get('/401', (req, res) => {
-  res.render('401', {
+  res.render('error/401', {
       title: 'Error 401',
       errorCode: '401',
       errorMessage: 'Unauthorized',
@@ -262,7 +262,7 @@ app.get('/401', (req, res) => {
 });
 
 app.get('/404', (req, res) => {
-  res.render('404', {
+  res.render('error/404', {
       title: 'Error 404',
       errorMessage: 'This requested URL was not found on this server.',
       returnUrl: '/',
@@ -271,7 +271,7 @@ app.get('/404', (req, res) => {
 });
 
 app.get('/500', (req, res) => {
-  res.render('500', {
+  res.render('error/500', {
       title: 'Error 500',
       errorCode: '500',
       errorMessage: 'Internal Server Error',
@@ -297,15 +297,22 @@ app.get("/*", (req, res) => {
 /***********************************************************************************************************************/
 // Start the database connection then the server.
 run()
-  .then(() => {
+  .then(async () => {
     console.log("Database connected successfully!");
 
-    app.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}, ` + `http://localhost:${PORT}/`);
-    });
+    app.listen(PORT, async () => {
+      console.log(`Server is listening on port ${PORT}, http://localhost:${PORT}/`);
 
+      // Dynamically import the 'open' package
+      try {
+        const open = await import('open');
+        await open.default(`http://localhost:${PORT}/`);
+        console.log("Browser opened successfully!");
+      } catch (err) {
+        console.error("Error opening the browser:", err);
+      }
+    });
   })
   .catch((error) => {
     console.error("Error connecting to database:", error);
   });
-
