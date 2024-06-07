@@ -13,7 +13,7 @@ const mongoose = require('mongoose');
 
 // Connect to MongoDB using Mongoose
 async function run(){
-mongoose.connect("mongodb+srv://moh_halim:zp95mOYVHAAgPzS0@admindb.jryohb3.mongodb.net/?retryWrites=true&w=majority", {
+mongoose.connect("mongodb://localhost:27017/collections", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   // useCreateIndex: true, // To suppress deprecation warning for `ensureIndex`
@@ -31,10 +31,65 @@ const userSchema = new mongoose.Schema({
   password: String,
   // Add more fields as needed
 });
-
-// Create a model based on the schema
 const User = mongoose.model('users', userSchema);
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+// const moviesTableSchema = new mongoose.Schema({
+//   movieId: Number,
+//   title: String,
+//   genres: String,
+// });
+// const MoviesTable = mongoose.model('moviesTable', moviesTableSchema);
+const moviesTableSchema = new mongoose.Schema({
+  movieId: Number,
+  title: String,
+  genres: String,
+});
+const MoviesTable = mongoose.model('moviestable', moviesTableSchema);
+
+const linksTableSchema = new mongoose.Schema({
+  movieId: Number,
+  imdbId: Number,
+  tmdbId: Number,
+});
+const LinksTable = mongoose.model('linkstable', linksTableSchema);
+
+const ratingsTableSchema = new mongoose.Schema({
+  userId: Number,
+  movieId: Number,
+  rating: Number,
+  timestamp: Number,
+});
+const RatingsTable = mongoose.model('ratingstable', ratingsTableSchema);
+
+
+const tagsTableSchema = new mongoose.Schema({
+  userId: Number,
+  movieId: Number,
+  tag: String,
+  timestamp: Number,
+});
+const TagsTable = mongoose.model('tagstable', tagsTableSchema);
+
+
+const genomeTagsTableSchema = new mongoose.Schema({
+  tagId: Number,
+  tag: String,
+});
+const GenomeTagsTable = mongoose.model('genometagstable', genomeTagsTableSchema);
+
+
+const genomeScoresTableSchema = new mongoose.Schema({
+  movieId: Number,
+  tagId: Number,
+  relevance: Number,
+});
+const GenomeScoresTable = mongoose.model('genomescorestable', genomeScoresTableSchema);
+
+// Create a model based on the schema
+
+
 // Export the User model
-module.exports = {User, run};
+module.exports = {User, run, MoviesTable, LinksTable, RatingsTable, TagsTable, GenomeTagsTable, GenomeScoresTable};
 

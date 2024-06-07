@@ -1,20 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const {getMovies} = require("../Controller/movies");
-const movies = getMovies();
+
+
+const {MoviesTable} = require("../Common/mongo");
 router.get("/get-movies", async (req, res) => {
-
-    const result = await movies.next();
-    let csvData = {
-        headings: ["movieId", "title", "genres"],
-        data: [],
-    };
-
-    for (let i = 0; i < result.value.length; i++) {
-        csvData.data.push(Object.values(result.value[i]));
-    }
-
-    res.status(200).json(csvData);
-});
+    const movies = await getMovies();
+    console.log(movies)
+    res.status(200).json(movies);
+})
 
 module.exports=router;

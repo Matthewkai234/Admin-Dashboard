@@ -1,6 +1,6 @@
 const { User } = require("./Common/mongo");
 const { validatePassword } = require("./Common/server");
-
+const bcrypt = require("bcrypt");
 
 // async function run() {
 //   await client.connect();
@@ -30,11 +30,14 @@ async function insertUser(
   if (doesEmailExist) {
     throw "email already exists";
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   const newUser = new User({
     firstName,
     lastName,
     email,
-    password,
+    password: hashedPassword,
   });
   await newUser.save();
   
@@ -64,8 +67,8 @@ async function loginUser(email, password, req) {
     if (!dbUser) {
       throw new Error("Email does not exist");
     }
-
-    if (dbUser.password !== password) {
+    const isPasswordSame = await bcrypt.compare(password,dbUser.password)
+    if (!isPasswordSame) {
       throw new Error("Invalid email or password");
     }
 

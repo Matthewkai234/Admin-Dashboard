@@ -1,6 +1,7 @@
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const express = require("express");
+const bcrypt = require("bcrypt")
 
 const moviesRouter = require("./Routes/movies");
 const linksRouter = require("./Routes/links");
@@ -236,9 +237,10 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 
   try {
     jwt.verify(token, secret);
+    const hashedPassword = await bcrypt.hash(password)
     await User.updateOne(
       { _id: objectId },
-      { $set: { password: password } },
+      { $set: { password: hashedPassword } },
     );
     return res.status(304).redirect("/login");
   } catch (e) {
@@ -297,22 +299,24 @@ app.get("/*", (req, res) => {
 /***********************************************************************************************************************/
 // Start the database connection then the server.
 run()
-  .then(async () => {
+  .then( () => {
     console.log("Database connected successfully!");
 
-    app.listen(PORT, async () => {
-      console.log(`Server is listening on port ${PORT}, http://localhost:${PORT}/`);
-
-      // Dynamically import the 'open' package
-      try {
-        const open = await import('open');
-        await open.default(`http://localhost:${PORT}/`);
-        console.log("Browser opened successfully!");
-      } catch (err) {
-        console.error("Error opening the browser:", err);
-      }
-    });
+    
   })
   .catch((error) => {
     console.error("Error connecting to database:", error);
+  });
+
+  app.listen(PORT,  () => {
+    console.log(`Server is listening on port ${PORT}, http://localhost:${PORT}/`);
+
+    // Dynamically import the 'open' package
+    // try {
+    //   const open = await import('open');
+    //   await open.default(`http://localhost:${PORT}/`);
+    //   console.log("Browser opened successfully!");
+    // } catch (err) {
+    //   console.error("Error opening the browser:", err);
+    // }
   });
