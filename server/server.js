@@ -126,28 +126,42 @@ app.get("/movies-per-genre-chart", (req, res) => {
 });
 
 /************************************* Data tables **************************************/
-app.get("/tables-links", (req, res) => {
-  res.render("tables-links");
+app.get("/table-links", (req, res) => {
+  res.render("table-links",{
+    title: "Links table"
+  });
 });
 
-app.get("/tables-movies", (req, res) => {
-  res.render("tables-movies");
+app.get("/table-movies", (req, res) => {
+  res.render("table-movies",{
+    title: "Movies"
+  });
 });
 
-app.get("/tables-tags", (req, res) => {
-  res.render("tables-tags");
+app.get("/table-tags", (req, res) => {
+  res.render("table-tags",{
+    title: "Tags table"
+  });
 });
 
-app.get("/tables-ratings", (req, res) => {
-  res.render("tables-ratings");
+app.get("/table-ratings", (req, res) => {
+  res.render("table-ratings",{
+    title:"Ratings table"
+  });
 });
 
-app.get("/tables-genome-tags", (req, res) => {
-  res.render("tables-genome-tags");
+app.get("/table-genome-tags", (req, res) => {
+  res.render("table-genome-tags",{
+    title: "Genome Tags"
+  });
 });
 
-app.get("/tables-genome-scores", (req, res) => {
-  res.render("tables-genome-scores");
+app.get("/table-genome-scores", (req, res) => {
+  res.render("table-genome-scores",
+    {
+      title: "Genome Scores"
+    }
+  );
 });
 
 /************************************* Authentication Handlers **************************************/
@@ -250,7 +264,6 @@ app.get('/401', (req, res) => {
 app.get('/404', (req, res) => {
   res.render('404', {
       title: 'Error 404',
-      errorImageSrc: 'assets/img/error-404-monochrome.svg',
       errorMessage: 'This requested URL was not found on this server.',
       returnUrl: '/',
       returnText: 'Return to Dashboard'     
@@ -262,7 +275,7 @@ app.get('/500', (req, res) => {
       title: 'Error 500',
       errorCode: '500',
       errorMessage: 'Internal Server Error',
-      returnUrl: '/',  // Use the root route or any other route you have set up in your Express app
+      returnUrl: '/',  
       returnText: 'Return to Dashboard'
   });
 });

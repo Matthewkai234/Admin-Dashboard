@@ -1,4 +1,0 @@
-function onSidenavLoaded() 
-{
-    fetchUserData();
-}
