@@ -10,14 +10,14 @@ const genomeTagsRouter = require("./Routes/genomeTags");
 const genomeScoresRouter = require("./Routes/genomeScores");
 const forgotPasswordRouter = require("./Routes/forgotPassword");
 const { PORT } = require("./Common/server");
-const { usersCollection } = require("./Common/mongo");
+const { User, run } = require("./Common/mongo");
 const { JWT_SECRET } = require("./Common/jwt");
 const { ObjectId } = require("mongodb");
 const { validatePassword } = require("./Common/server");
 
 const app = express();
 
-const { run, insertUser, loginUser } = require("./connector_mongodb");
+const { insertUser, loginUser } = require("./connector_mongodb");
 const session = require("express-session");
 const { title } = require("process");
 const { timeEnd } = require("console");
@@ -64,7 +64,7 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
   if (!req.session.loginUser) {
-    res.render("auth/register",{
+    res.render(path.join(__dirname, "..", "client", "auth", "register"),{
       title: "Create new account"
     });
   } else {
@@ -86,7 +86,7 @@ app.get('/reset-password/:id/:token', async (req, res) => {
   const { id, token } = req.params;
 
   const objectId = new ObjectId(id);
-  const oldUser = await usersCollection.findOne({ _id: objectId });
+  const oldUser = await User.findOne({ _id: objectId });
 
   if (!oldUser) {
     return res.redirect('/forget-password');
@@ -171,7 +171,7 @@ app.post("/api/sign-up", async (req, res) => {
     await insertUser(firstName, lastName, email, password, confirmPassword);
   } catch (e) {
     console.error(e);
-    res.status(401).render("register",{
+    res.status(401).render(path.join(__dirname, "..", "client", "auth", "register"),{
       title: "Create new account"
     });
   }
@@ -226,7 +226,7 @@ app.post("/reset-password/:id/:token", async (req, res) => {
   }
 
   const objectId = new ObjectId(id);
-  const oldUser = await usersCollection.findOne({ _id: objectId });
+  const oldUser = await User.findOne({ _id: objectId });
 
   if (!oldUser) {
     return res.redirect("/forget-password");
@@ -236,7 +236,7 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 
   try {
     jwt.verify(token, secret);
-    await usersCollection.updateOne(
+    await User.updateOne(
       { _id: objectId },
       { $set: { password: password } },
     );

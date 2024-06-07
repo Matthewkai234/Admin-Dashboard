@@ -1,10 +1,10 @@
-const { client, usersCollection } = require("./Common/mongo");
+const { User } = require("./Common/mongo");
 const { validatePassword } = require("./Common/server");
 
 
-async function run() {
-  await client.connect();
-}
+// async function run() {
+//   await client.connect();
+// }
 
 async function insertUser(
   firstName,
@@ -26,18 +26,18 @@ async function insertUser(
     throw "invalid email";
   }
 
-  const doesEmailExist = await usersCollection.findOne({ email });
+  const doesEmailExist = await User.findOne({ email });
   if (doesEmailExist) {
     throw "email already exists";
   }
-  await usersCollection.insertOne({
+  const newUser = new User({
     firstName,
     lastName,
     email,
     password,
-    //createdAt : new Date()
   });
-
+  await newUser.save();
+  
   //console.log(`A document was inserted with the _id: ${result.insertedId}`);
 }
 
@@ -55,11 +55,11 @@ async function insertUser(
 
 async function loginUser(email, password, req) {
   try {
-    await client.connect();
-    const database = client.db("web-2-db");
-    const users = database.collection("users");
+    // await client.connect();
+    // const database = client.db("web-2-db");
+    // const users = database.collection("users");
 
-    const dbUser = await users.findOne({ email });
+    const dbUser = await User.findOne({ email });
 
     if (!dbUser) {
       throw new Error("Email does not exist");
@@ -83,4 +83,4 @@ async function loginUser(email, password, req) {
   }
 }
 
-module.exports = { run, insertUser, loginUser };
+module.exports = {insertUser, loginUser };
