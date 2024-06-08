@@ -1,51 +1,35 @@
-const path = require("path");
-const fs = require("fs");
-const csv = require("csv-parser");
-const readline = require("readline");
-const {Readable} = require("stream");
+const { RatingsTable } = require("../Common/mongo");
 
-async function* getRatings(){
-    const fileStream = fs.createReadStream(path.join("Data", "ratings.csv"));
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-    });
+async function getRatings(start = 0, length = 10) {
+  try {
+    const ratings = await RatingsTable.find().skip(start).limit(length);
+    return ratings;
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    throw error;
+  }
+}
 
-    let chunk = [];
-    let lineCount = 0;
+async function getRating(searchQuery) {
+    if (searchQuery === "" || searchQuery === null || searchQuery === undefined){
+        return await getRatings();
+    }
 
-    for await (const line of rl) {
-        chunk.push(line);
-        lineCount++;
-        if (lineCount === 1000) {
-          const chunkString = chunk.join("\n");
-          const results = await parseCSV(chunkString);
-        
-          yield results;
-          const keys = chunk.shift();
-          chunk = [];
-          chunk.push(keys);
-          lineCount = 0;
+    try {
+        let query = {};
+        if (searchQuery) {
+            // Modify the query to search for exact or partial match
+            query = { rating: { $regex: parseFloat(searchQuery), $options: 'i' } };
         }
-      }
-
-    if (chunk.length > 0) {
-        const chunkString = chunk.join("\n");
-        const results = await parseCSV(chunkString);
-        yield results;
+        
+        const ratings = await RatingsTable.find(query); 
+        console.log(ratings)
+        return ratings;
+        
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        throw error;
     }
 }
 
-function parseCSV(chunkString) {
-    return new Promise((resolve, reject) => {
-        const results = [];
-        const stream = Readable.from(chunkString).pipe(csv());
-        stream.on("data", (data) => results.push(data));
-        stream.on("end", () => resolve(results));
-        stream.on("error", (error) => reject(error));
-    });
-}
-
-module.exports={
-    getRatings
-}
+module.exports = { getRatings, getRating}; 

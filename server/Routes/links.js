@@ -1,20 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const {getLinks} = require("../Controller/links");
-const links = getLinks();
-router.get("/get-links", async (req,res)=>{
+const { getLinks, getLink } = require("../Controller/links");
 
-    const result = await links.next();
-    let csvData = {
-        headings: ["movieId", "imdbId", "tmdbId"],
-        data: [],
-    };
-
-    for (let i = 0; i < result.value.length; i++) {
-        csvData.data.push(Object.values(result.value[i]));
-    }
-
-    res.status(200).json(csvData);
+router.get("/get-links", async (req, res) => {
+    const start = parseInt(req.query.start) || 0;
+    const length = parseInt(req.query.length) || 10;
+    const links = await getLinks(start, length);
+    res.status(200).json(links);
+    
 });
 
-module.exports=router;
+router.get("/get-link", async (req, res) => {
+    const { query } = req.query;
+  
+    console.log(query);
+  
+    const matched = await getLink(query);
+  
+    res.status(200).json(matched);
+  });
+
+module.exports = router;

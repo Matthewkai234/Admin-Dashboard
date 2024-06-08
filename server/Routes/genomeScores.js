@@ -1,20 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const {getGenomeScores} = require("../Controller/genomeScores");
-const genomeScores = getGenomeScores();
-router.get("/get-genome-scores", async (req,res)=>{
+const { getGenomeScores, getGenomeScore } = require("../Controller/genomeScores");
 
-    const result = await genomeScores.next();
-    let csvData = {
-        headings: ["movieId","tagId", "relevance"],
-        data: [],
-    };
-
-    for (let i = 0; i < result.value.length; i++) {
-        csvData.data.push(Object.values(result.value[i]));
-    }
-
-    res.status(200).json(csvData);
+router.get("/get-genome-scores", async (req, res) => {
+    const start = parseInt(req.query.start) || 0;
+    const length = parseInt(req.query.length) || 10;
+    const genomescores = await getGenomeScores(start, length);
+    res.status(200).json(genomescores);
+    
 });
 
-module.exports=router;
+router.get("/get-genome-score", async (req, res) => {
+    const { query } = req.query;
+  
+    console.log(query);
+  
+    const matched = await getGenomeScore(query);
+  
+    res.status(200).json(matched);
+  });
+
+module.exports = router;

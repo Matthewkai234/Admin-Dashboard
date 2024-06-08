@@ -1,6 +1,7 @@
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const express = require("express");
+const bcrypt = require("bcrypt")
 
 const moviesRouter = require("./Routes/movies");
 const linksRouter = require("./Routes/links");
@@ -10,15 +11,17 @@ const genomeTagsRouter = require("./Routes/genomeTags");
 const genomeScoresRouter = require("./Routes/genomeScores");
 const forgotPasswordRouter = require("./Routes/forgotPassword");
 const { PORT } = require("./Common/server");
-const { usersCollection } = require("./Common/mongo");
+const { User, run } = require("./Common/mongo");
 const { JWT_SECRET } = require("./Common/jwt");
 const { ObjectId } = require("mongodb");
 const { validatePassword } = require("./Common/server");
 
 const app = express();
 
-const { run, insertUser, loginUser } = require("./connector_mongodb");
+const { insertUser, loginUser } = require("./connector_mongodb");
 const session = require("express-session");
+const { title } = require("process");
+const { timeEnd } = require("console");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -34,38 +37,27 @@ app.use(
   }),
 );
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "..", "client"));
+
+app.use(express.static(path.join(__dirname, "..", "client"))); //serve ejs pages
+app.use("/static", express.static(path.join(__dirname, ".", "public"))); //serve the assets
 
 /******************************************************** Routes ********************************************************/
-
 app.get("/", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "index.html"));
-  }
-});
-
-app.get("/layout-static", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.sendFile(path.join(__dirname, "..", "client", "layout-static.html"));
-  }
-});
-
-app.get("/layout-sidenav-light", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.sendFile(
-      path.join(__dirname, "..", "client", "layout-sidenav-light.html"),
-    );
+    res.render("index",{
+      title: "Home"
+    });
   }
 });
 
 app.get("/login", (req, res) => {
   if (!req.session.loginUser) {
-    res.sendFile(path.join(__dirname, "..", "client", "login.html"));
+    res.render("auth/login",{
+      title: "Login"
+    });
   } else {
     res.status(301).redirect("/");
   }
@@ -73,7 +65,9 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
   if (!req.session.loginUser) {
-    res.sendFile(path.join(__dirname, "..", "client", "register.html"));
+    res.render(path.join(__dirname, "..", "client", "auth", "register"),{
+      title: "Create new account"
+    });
   } else {
     res.status(301).redirect("/");
   }
@@ -81,107 +75,111 @@ app.get("/signup", (req, res) => {
 
 app.get("/forget-password", (req, res) => {
   if (!req.session.loginUser) {
-    res.sendFile(path.join(__dirname, "..", "client", "password.html"));
+    res.render("auth/forget-password",{
+      title: "Password Recovery"
+    });
   } else {
     res.status(301).redirect("/");
   }
 });
 
-app.get("/reset-password/:id/:token", async (req, res) => {
+app.get('/reset-password/:id/:token', async (req, res) => {
   const { id, token } = req.params;
 
   const objectId = new ObjectId(id);
-  const oldUser = await usersCollection.findOne({ _id: objectId });
+  const oldUser = await User.findOne({ _id: objectId });
 
   if (!oldUser) {
-    return res.redirect("/forget-password");
+    return res.redirect('/forget-password');
   }
 
   const secret = JWT_SECRET + oldUser.password;
 
   try {
     jwt.verify(token, secret);
-    return res.render(
-      path.join(__dirname, "..", "client", "reset-password.ejs"),
-    );
+    return res.render('auth/reset-password', {
+      title: 'Reset Password'
+    });
   } catch (e) {
-    return res.redirect("/forget-password");
+    return res.redirect('/forget-password');
   }
 });
 
-app.get("/charts", (req, res) => {
+/************************************* Charts **************************************/
+app.get("/movies-per-year-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "charts.html"));
+    res.render("tables/movies-per-year-chart",{
+      title: "Movies per year chart"
+    });
   }
 });
 
-app.get("/movies-chart", (req, res) => {
+app.get("/movies-per-genre-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.sendFile(path.join(__dirname, "..", "client", "movies-chart.html"));
+    res.render("tables/movies-per-genre-chart",{
+      title: "Movies per genre cart"
+    });
   }
 });
 
-app.get("/movies-genres-chart", (req, res) => {
-  if (!req.session.loginUser) {
-    res.status(301).redirect("/login");
-  } else {
-    res.sendFile(path.join(__dirname, "..", "client", "movies-genres-chart.html"));
-  }
+/************************************* Data tables **************************************/
+app.get("/table-links", (req, res) => {
+  res.render("tables/table-links",{
+    title: "Links table"
+  });
 });
 
-app.get("/tables-links", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-links.html"));
-});
-app.get("/tables-movies", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-movies.html"));
-});
-
-app.get("/tables-tags", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-tags.html"));
+app.get("/table-movies", (req, res) => {
+  res.render("tables/table-movies",{
+    title: "Movies"
+  });
 });
 
-app.get("/tables-ratings", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-ratings.html"));
+app.get("/table-tags", (req, res) => {
+  res.render("tables/table-tags",{
+    title: "Tags table"
+  });
 });
 
-app.get("/tables-genome-tags", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-genome-tags.html"));
+app.get("/table-ratings", (req, res) => {
+  res.render("tables/table-ratings",{
+    title:"Ratings table"
+  });
 });
 
-app.get("/tables-genome-scores", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "tables-genome-scores.html"));
+app.get("/table-genome-tags", (req, res) => {
+  res.render("tables/table-genome-tags",{
+    title: "Genome Tags"
+  });
 });
 
+app.get("/table-genome-scores", (req, res) => {
+  res.render("tables/table-genome-scores",
+    {
+      title: "Genome Scores"
+    }
+  );
+});
+
+/************************************* Authentication Handlers **************************************/
 app.post("/api/sign-up", async (req, res) => {
   const { firstName, lastName, email, password, confirmPassword } = req.body;
   try {
     await insertUser(firstName, lastName, email, password, confirmPassword);
   } catch (e) {
     console.error(e);
-    res
-      .status(401)
-      .sendFile(path.join(__dirname, "..", "client", "register.html"));
+    res.status(401).render(path.join(__dirname, "..", "client", "auth", "register"),{
+      title: "Create new account"
+    });
   }
   res.redirect("/login");
   console.log("User inserted successfully, now it should redirect to /login");
 });
 
-/* app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    await loginUser(email, password);
-    req.session.loginUser = { email: email, isLogged: true };
-    req.session.save();
-  } catch (e) {
-    console.error(e);
-    return;
-  }
-  res.redirect("/");
-}); */
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -192,8 +190,9 @@ app.post("/api/login", async (req, res) => {
     res.redirect("/401");
   }
 });
+
 app.get("/api/user", (req, res) => {
-  if (req.session.loginUser && req.session.loginUser.isLogged) {
+  if (req.session.loginUser?.isLogged) {
     res.json({
       email: req.session.loginUser.email,
       firstName: req.session.loginUser.firstName,
@@ -228,7 +227,7 @@ app.post("/reset-password/:id/:token", async (req, res) => {
   }
 
   const objectId = new ObjectId(id);
-  const oldUser = await usersCollection.findOne({ _id: objectId });
+  const oldUser = await User.findOne({ _id: objectId });
 
   if (!oldUser) {
     return res.redirect("/forget-password");
@@ -238,9 +237,10 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 
   try {
     jwt.verify(token, secret);
-    await usersCollection.updateOne(
+    const hashedPassword = await bcrypt.hash(password)
+    await User.updateOne(
       { _id: objectId },
-      { $set: { password: password } },
+      { $set: { password: hashedPassword } },
     );
     return res.status(304).redirect("/login");
   } catch (e) {
@@ -249,17 +249,40 @@ app.post("/reset-password/:id/:token", async (req, res) => {
 });
 
 /******************************************************** Errors ********************************************************/
-app.get("/401", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "401.html"));
+app.get('/401', (req, res) => {
+  res.render('error/401', {
+      title: 'Error 401',
+      errorCode: '401',
+      errorMessage: 'Unauthorized',
+      errorDescription: 'Access to this resource is denied.',
+      additionalInfo: 'If you got here from the login page, check your email and password!',
+      returnUrl_1: '/',
+      returnText_1: 'Return to Dashboard',
+      returnUrl_2: '/login',
+      returnText_2: 'Return to Login'      
+  });
 });
 
-app.get("/500", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "500.html"));
+app.get('/404', (req, res) => {
+  res.render('error/404', {
+      title: 'Error 404',
+      errorMessage: 'This requested URL was not found on this server.',
+      returnUrl: '/',
+      returnText: 'Return to Dashboard'     
+  });
 });
 
-app.use(express.static(path.join(__dirname, "..", "client")));
-app.use("/static", express.static(path.join(__dirname, "..", "client")));
+app.get('/500', (req, res) => {
+  res.render('error/500', {
+      title: 'Error 500',
+      errorCode: '500',
+      errorMessage: 'Internal Server Error',
+      returnUrl: '/',  
+      returnText: 'Return to Dashboard'
+  });
+});
 
+/******************************************************** External Routes ********************************************************/
 app.use("/api/movie", moviesRouter);
 app.use("/api/links", linksRouter);
 app.use("/api/tags", tagsRouter);
@@ -268,22 +291,32 @@ app.use("/api/genome-tags", genomeTagsRouter);
 app.use("/api/genome-scores", genomeScoresRouter);
 app.use("/api/forgot-password", forgotPasswordRouter);
 
-/******************************************************** Errors ********************************************************/
+/******************************************************** 404 Error ********************************************************/
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "404.html"));
+  res.redirect("404");
 });
-/***********************************************************************************************************************/
-// Start the database connection when the server starts
 
+/***********************************************************************************************************************/
+// Start the database connection then the server.
 run()
-  .then(() => {
+  .then( () => {
     console.log("Database connected successfully!");
+
+    
   })
   .catch((error) => {
     console.error("Error connecting to database:", error);
   });
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
-//app.listen(42069);
+  app.listen(PORT,  () => {
+    console.log(`Server is listening on port ${PORT}, http://localhost:${PORT}/`);
+
+    // Dynamically import the 'open' package
+    // try {
+    //   const open = await import('open');
+    //   await open.default(`http://localhost:${PORT}/`);
+    //   console.log("Browser opened successfully!");
+    // } catch (err) {
+    //   console.error("Error opening the browser:", err);
+    // }
+  });

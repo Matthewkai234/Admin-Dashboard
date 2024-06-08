@@ -1,50 +1,35 @@
-const path = require("path");
-const fs = require("fs");
-const csv = require("csv-parser");
-const readline = require("readline");
-const {Readable} = require("stream");
+const { LinksTable } = require("../Common/mongo");
 
-async function* getLinks(){
-    const fileStream = fs.createReadStream(path.join("Data", "links.csv"));
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-    });
+async function getLinks(start = 0, length = 10) {
+  try {
+    const links = await LinksTable.find().skip(start).limit(length);
+    return links;
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    throw error;
+  }
+}
 
-    let chunk = [];
-    let lineCount = 0;
+async function getLink(searchQuery) {
+    if (searchQuery === "" || searchQuery === null || searchQuery === undefined){
+        return await getLinks();
+    }
 
-    for await (const line of rl) {
-        chunk.push(line);
-        lineCount++;
-        if (lineCount === 1000) {
-          const chunkString = chunk.join("\n");
-          const results = await parseCSV(chunkString);
-        
-          yield results;
-          const keys = chunk.shift();
-          chunk = [];
-          chunk.push(keys);
-          lineCount = 0;
+    try {
+        let query = {};
+        if (searchQuery) {
+            // Modify the query to search for exact or partial match
+            query = { movieId: { $regex: searchQuery, $options: 'i' } };
         }
-      }
-
-    if (chunk.length > 0) {
-        const chunkString = chunk.join("\n");
-        const results = await parseCSV(chunkString);
-        yield results;
+        const links = await LinksTable.find(query);
+        return links;
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        throw error;
     }
 }
 
-function parseCSV(chunkString) {
-    return new Promise((resolve, reject) => {
-        const results = [];
-        const stream = Readable.from(chunkString).pipe(csv());
-        stream.on("data", (data) => results.push(data));
-        stream.on("end", () => resolve(results));
-        stream.on("error", (error) => reject(error));
-    });
-}
-module.exports={
-    getLinks
-}
+module.exports = { getLinks, getLink}; 
+
+
+
