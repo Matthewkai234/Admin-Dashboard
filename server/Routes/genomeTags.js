@@ -1,13 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const {getGenomeTags} = require("../Controller/genomeTags");
+const { getGenomeTags, getGenomeTag } = require("../Controller/genomeTags");
 
-
-const {GenomeTagsTable} = require("../Common/mongo");
 router.get("/get-genome-tags", async (req, res) => {
-    const genomeTags = await getGenomeTags();
-    console.log(genomeTags)
-    res.status(200).json(genomeTags);
-})
+    const start = parseInt(req.query.start) || 0;
+    const length = parseInt(req.query.length) || 10;
+    const genometags = await getGenomeTags(start, length);
+    res.status(200).json(genometags);
+    
+});
 
-module.exports=router;
+router.get("/get-genome-tag", async (req, res) => {
+    const { query } = req.query;
+  
+    console.log(query);
+  
+    const matched = await getGenomeTag(query);
+  
+    res.status(200).json(matched);
+  });
+
+module.exports = router;

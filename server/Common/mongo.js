@@ -35,12 +35,6 @@ const User = mongoose.model('users', userSchema);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-// const moviesTableSchema = new mongoose.Schema({
-//   movieId: Number,
-//   title: String,
-//   genres: String,
-// });
-// const MoviesTable = mongoose.model('moviesTable', moviesTableSchema);
 const moviesTableSchema = new mongoose.Schema({
   movieId: Number,
   title: String,
@@ -49,41 +43,41 @@ const moviesTableSchema = new mongoose.Schema({
 const MoviesTable = mongoose.model('moviestable', moviesTableSchema);
 
 const linksTableSchema = new mongoose.Schema({
-  movieId: Number,
-  imdbId: Number,
-  tmdbId: Number,
+  movieId: String,
+  imdbId: String,
+  tmdbId: String,
 });
 const LinksTable = mongoose.model('linkstable', linksTableSchema);
 
 const ratingsTableSchema = new mongoose.Schema({
-  userId: Number,
-  movieId: Number,
-  rating: Number,
-  timestamp: Number,
+  userId: String,
+  movieId: String,
+  rating: String,
+  timestamp: String,
 });
 const RatingsTable = mongoose.model('ratingstable', ratingsTableSchema);
 
 
 const tagsTableSchema = new mongoose.Schema({
-  userId: Number,
-  movieId: Number,
+  userId: String,
+  movieId: String,
   tag: String,
-  timestamp: Number,
+  timestamp: String,
 });
 const TagsTable = mongoose.model('tagstable', tagsTableSchema);
 
 
 const genomeTagsTableSchema = new mongoose.Schema({
-  tagId: Number,
+  tagId: String,
   tag: String,
 });
 const GenomeTagsTable = mongoose.model('genometagstable', genomeTagsTableSchema);
 
 
 const genomeScoresTableSchema = new mongoose.Schema({
-  movieId: Number,
-  tagId: Number,
-  relevance: Number,
+  movieId: String,
+  tagId: String,
+  relevance: String,
 });
 const GenomeScoresTable = mongoose.model('genomescorestable', genomeScoresTableSchema);
 
