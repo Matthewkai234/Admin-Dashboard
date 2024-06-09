@@ -110,7 +110,7 @@ app.get("/movies-per-year-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("tables/movies-per-year-chart",{
+    res.render("charts/movies-per-year-chart",{
       title: "Movies per year chart"
     });
   }
@@ -120,7 +120,7 @@ app.get("/movies-per-genre-chart", (req, res) => {
   if (!req.session.loginUser) {
     res.status(301).redirect("/login");
   } else {
-    res.render("tables/movies-per-genre-chart",{
+    res.render("charts/movies-per-genre-chart",{
       title: "Movies per genre cart"
     });
   }

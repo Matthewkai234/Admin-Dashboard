@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-    
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies Chart - <%= title %></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="/static/css/styles.css" rel="stylesheet" />
@@ -12,83 +13,35 @@
 </head>
 
 <body>
-    <div class="col">
-        <div class="card mb-4">
-            <div class="card-header">
-                <a href="/index">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
-                    </svg>
-                    Return to Dashboard
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Return to Dashboard
+                </a>
+                <a href="movies-per-genre-chart" class="btn btn-primary">
+                    Movies Per Genre Chart <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
-            
+
             <div class="card-body">
-                <canvas id="myChart" width="400" height="200"></canvas>
+                <form class="form-inline mb-4">
+                    <div class="form-group mr-3">
+                        <label for="startYear" class="mr-2">Start Year:</label>
+                        <input type="number" class="form-control" id="startYear" name="startYear" min="1900" max="2100" value="2000">
+                    </div>
+                    <div class="form-group mr-3">
+                        <label for="endYear" class="mr-2">End Year:</label>
+                        <input type="number" class="form-control" id="endYear" name="endYear" min="1900" max="2100" value="2024">
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="updateChart()">Update Chart</button>
+                </form>
+                <canvas id="movies-per-year-chart" width="400" height="130"></canvas>
             </div>
         </div>
     </div>
-    
-    <script>
-        async function fetchMovies() {
-            const response = await fetch('/api/movie/get-movies');
-            const data = await response.json();
-            return data;
-        }
 
-        function transformDataForChart(data) {
-            const movies = data.data.map(item => ({
-                movieId: item[0],
-                title: item[1],
-                genres: item[2]
-            }));
-
-            // Example transformation: Count the number of movies per year (assuming titles include year info)
-            const movieCountByYear = movies.reduce((acc, movie) => {
-                const year = parseInt(movie.title.match(/\((\d{4})\)/)?.[1], 10);
-                if (year) {
-                    if (!acc[year]) {
-                        acc[year] = 0;
-                    }
-                    acc[year]++;
-                }
-                return acc;
-            }, {});
-
-            const labels = Object.keys(movieCountByYear).sort();
-            const values = labels.map(year => movieCountByYear[year]);
-
-            return {
-                labels,
-                datasets: [{
-                    label: 'Movies per Year',
-                    data: values,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            };
-        }
-
-        async function createChart() {
-            const data = await fetchMovies();
-            const chartData = transformDataForChart(data);
-
-            const ctx = document.getElementById('myChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar', // or 'line', 'pie', etc.
-                data: chartData,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        createChart();
-    </script>
+    <script src="static/js/movies-per-year-chart.js"></script>    
 </body>
+
 </html>
